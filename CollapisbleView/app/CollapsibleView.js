@@ -2,27 +2,23 @@
 import React, { Component } from 'react';
 import { 
   Animated, ImageBackground, Platform, StyleSheet, View,
-  Text, ListView, Image
+  Text, ListView, Image, FlatList
 } from 'react-native';
 
-import data from './data';
+const data = Array.from({length: 30});
 
 const NAVBAR_HEIGHT = 200;
-const STATUS_BAR_HEIGHT = Platform.select({ ios: 33, android: 24 });
+const STATUS_BAR_HEIGHT = Platform.select({ ios: 35, android: 24 });
 
-const AnimatedListView = Animated.createAnimatedComponent(ListView);
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 export default class CollapsibleView extends Component {
   constructor(props) {
     super(props);
-
-    const dataSource = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-
     const scrollAnim = new Animated.Value(0);
     const offsetAnim = new Animated.Value(0);
 
     this.state = {
-      dataSource: dataSource.cloneWithRows(data),
       scrollAnim,
       offsetAnim,
       clampedScroll: Animated.diffClamp(
@@ -84,11 +80,11 @@ export default class CollapsibleView extends Component {
     }).start();
   };
 
-  _renderRow = (rowData, sectionId, rowId) => {
+  _renderRow = ({item, index}) => {
     return (
-      <ImageBackground key={rowId} style={styles.row} source={{ uri: rowData.image }} resizeMode="cover">
-        <Text style={styles.rowText}>{rowData.title}</Text>
-      </ImageBackground>
+      <View style={styles.row}>
+        <Text style={styles.text}>Item {index+1}</Text>
+      </View>
     );
   };
 
@@ -108,10 +104,11 @@ export default class CollapsibleView extends Component {
 
     return (
       <View style={styles.fill}>
-        <AnimatedListView
+        <AnimatedFlatList
           contentContainerStyle={styles.contentContainer}
-          dataSource={this.state.dataSource}
-          renderRow={this._renderRow}
+          data={data}
+          keyExtractor={(item, index) => index}
+          renderItem={this._renderRow}
           scrollEventThrottle={1}
           onMomentumScrollBegin={this._onMomentumScrollBegin}
           onMomentumScrollEnd={this._onMomentumScrollEnd}
@@ -122,8 +119,8 @@ export default class CollapsibleView extends Component {
           )}
         />
         <Animated.View style={[styles.navbar, { transform: [{ translateY: navbarTranslate }] }]}>
-          <Animated.Text style={[styles.title, { opacity: navbarOpacity }]}>
-            PLACES
+          <Animated.Text style={[styles.filter, { opacity: navbarOpacity }]}>
+            Area for filters
           </Animated.Text>
         </Animated.View>
       </View>
@@ -141,18 +138,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
-    backgroundColor: 'white',
-    borderBottomColor: '#dedede',
-    borderBottomWidth: 1,
+    backgroundColor: '#48E89C',
+    borderBottomColor: '#FFFBCA',
+    borderBottomWidth: 2,
     height: NAVBAR_HEIGHT,
     justifyContent: 'center',
     paddingTop: STATUS_BAR_HEIGHT,
   },
   contentContainer: {
     paddingTop: NAVBAR_HEIGHT,
-  },
-  title: {
-    color: '#333333',
   },
   row: {
     height: 300,
@@ -161,8 +155,19 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: 'transparent',
   },
-  rowText: {
-    color: 'white',
-    fontSize: 18,
+  filter: {
+    color:'#000',
+    fontSize: 35,
+    fontWeight: '400',
   },
+  row:{
+    backgroundColor: '#4298f4',
+    padding: 30,
+    marginBottom: 5,
+  },
+  text: {
+    color: '#fff',
+    fontSize: 30,
+    fontWeight: 'bold'
+  }
 });

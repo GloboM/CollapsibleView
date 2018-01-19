@@ -75,9 +75,12 @@ export default class CollapsibleView extends Component {
 
     Animated.timing(this.state.offsetAnim, {
       toValue,
-      duration: 350,
+      //duration: 350,
+      //tension: 10,
+      //friction: 10,
+      //overshootClamping: false,
       useNativeDriver: true,
-    }).start();
+    }).start();    
   };
 
   _renderRow = ({item, index}) => {
@@ -117,6 +120,7 @@ export default class CollapsibleView extends Component {
             [{ nativeEvent: { contentOffset: { y: this.state.scrollAnim } } }],
             { useNativeDriver: true },
           )}
+          ref={(_flatList) => this._flatList = _flatList}
         />
         <Animated.View style={[styles.navbar, { transform: [{ translateY: navbarTranslate }] }]}>
           <Animated.Text style={[styles.filter, { opacity: navbarOpacity }]}>
